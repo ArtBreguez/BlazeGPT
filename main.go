@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/nexidian/gocliselect"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"strings"
 )
@@ -25,17 +25,19 @@ type TotalPages struct {
 }
 
 func main() {
-	clearTerminal()
-	menu := gocliselect.NewMenu("Selecione uma opção")
-	menu.AddItem("Pegar ultima jogada ", "get_latest_play")
-	choice := menu.Display()
-	switch choice {
-	case "get_latest_play":
-		clearTerminal()
-		jogadas, err := getBlazeData()
-		checkErr(err, "Error getting blaze data")
-		getChatGPTMessage(jogadas)
-	}
+	//clearTerminal()
+	//menu := gocliselect.NewMenu("Selecione uma opção")
+	//menu.AddItem("Pegar ultima jogada ", "get_latest_play")
+	//choice := menu.Display()
+	//switch choice {
+	//case "get_latest_play":
+
+	//}
+
+	jogadas, err := getBlazeData()
+	checkErr(err, "Error getting blaze data")
+	text := getChatGPTMessage(jogadas)
+	sendMessageToTelegramChannel(text)
 
 }
 func getBlazeData() ([]string, error) {
@@ -81,11 +83,38 @@ func getChatGPTMessage(jogadas []string) string {
 	firstChoice := choices[0].(map[string]interface{})
 	text := firstChoice["text"].(string)
 	text = strings.Replace(text, "\n", "", -1)
-	bold := "\033[1m"
-	reset := "\033[0m"
-	//fmt.Println(bold + "Texto em negrito" + reset)
-	fmt.Println("A provavel próxima jogada é", bold, text, reset)
+	text = strings.Replace(text, ".", "", -1)
 	return text
+}
+
+func sendMessageToTelegramChannel(text string) {
+	var emoji string
+	token := "5891096865:AAFHsDFzfFfgFDBDIUe5drg68OKsDOu9HUw"
+	chatID := "-1001809111657"
+	if text == "Black" {
+		emoji = `⚫`
+	} else if text == "Red" {
+		emoji = `🔴`
+	} else if text == "White" {
+		emoji = `⚪`
+	}
+	message := "A próxima jogada é " + text + " " + emoji
+
+	encodedMessage := url.QueryEscape(message)
+	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
+
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println(string(body))
 }
 
 func clearTerminal() {
