@@ -25,15 +25,6 @@ type TotalPages struct {
 }
 
 func main() {
-	//clearTerminal()
-	//menu := gocliselect.NewMenu("Selecione uma opção")
-	//menu.AddItem("Pegar ultima jogada ", "get_latest_play")
-	//choice := menu.Display()
-	//switch choice {
-	//case "get_latest_play":
-
-	//}
-
 	jogadas, err := getBlazeData()
 	checkErr(err, "Error getting blaze data")
 	text := getChatGPTMessage(jogadas)
