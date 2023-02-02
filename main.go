@@ -3,12 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
-	"os/exec"
 	"strings"
 )
 
@@ -106,12 +104,6 @@ func sendMessageToTelegramChannel(text string) {
 	}
 
 	log.Println(string(body))
-}
-
-func clearTerminal() {
-	cmd, err := exec.Command("bash", "-c", "clear").Output()
-	checkErr(err, "Erro ao limpar o terminal")
-	fmt.Println(string(cmd))
 }
 
 func checkErr(err error, msg ...string) {
