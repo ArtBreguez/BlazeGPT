@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -25,11 +26,21 @@ type TotalPages struct {
 	Records     []Records `json:"records"`
 }
 
+type Config struct {
+	Channel string
+	ChatID  string
+	Blaze   string
+	ChatGPT string
+	Token   string
+}
+
 var lastHash [32]byte
 
 func main() {
+	config, err := readEnv()
+	checkErr(err, "Error reading config file")
 	for {
-		jogadas, err := getBlazeData()
+		jogadas, err := getBlazeData(config.Blaze)
 		if err != nil {
 			fmt.Println("Error getting blaze data:", err)
 			continue
@@ -40,17 +51,17 @@ func main() {
 			fmt.Println("Payload unchanged")
 		} else {
 			lastHash = hash
-			text := getChatGPTMessage(jogadas)
-			sendMessageToTelegramChannel(text)
+			text := getChatGPTMessage(jogadas, config)
+			sendMessageToTelegramChannel(text, config)
 		}
 
 		time.Sleep(2 * time.Second)
 	}
 }
 
-func getBlazeData() ([]string, error) {
+func getBlazeData(endpoint string) ([]string, error) {
 	var colors []string
-	data, err := http.Get("https://blaze.com/api/roulette_games/history")
+	data, err := http.Get(endpoint)
 	checkErr(err, "Error getting data from blaze.com")
 	defer data.Body.Close()
 	var result TotalPages
@@ -62,21 +73,21 @@ func getBlazeData() ([]string, error) {
 	return colors, err
 }
 
-func getChatGPTMessage(jogadas []string) string {
+func getChatGPTMessage(jogadas []string, config Config) string {
 	result := strings.Join(jogadas, ", ")
-	url := "https://api.openai.com/v1/completions"
+	url := config.ChatGPT
 	payload := map[string]interface{}{
 		"model":       "text-davinci-003",
-		"prompt":      "Baseado nessa sequencia do jogo Double da Blaze [" + result + "] qual a possivel nova cor? Reponda da maneira mais curta possivel.",
+		"prompt":      "Baseado nessa sequencia do jogo Double da Blaze [" + result + "] qual a possivel nova cor? Reponda da maneira mais curta possivel. Uma observação é que a cor 'White' é a que tem menos probabilidade de sair, com a vermelha e preta com a mesma probabilidade. Responda em ingles.",
 		"max_tokens":  7,
-		"temperature": 0.6,
+		"temperature": 1,
 	}
 
 	jsonValue, _ := json.Marshal(payload)
 
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonValue))
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Authorization", "Bearer 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")
+	req.Header.Add("Authorization", config.Token)
 
 	client := &http.Client{}
 	res, _ := client.Do(req)
@@ -95,10 +106,10 @@ func getChatGPTMessage(jogadas []string) string {
 	return text
 }
 
-func sendMessageToTelegramChannel(text string) {
+func sendMessageToTelegramChannel(text string, config Config) {
 	var emoji string
-	token := "5891096865:AAFHsDFzfFfgFDBDIUe5drg68OKsDOu9HUw"
-	chatID := "-1001809111657"
+	token := config.Channel
+	chatID := config.ChatID
 	if text == "Black" {
 		emoji = `⚫`
 	} else if text == "Red" {
@@ -123,6 +134,18 @@ func sendMessageToTelegramChannel(text string) {
 	}
 
 	log.Println(string(body))
+}
+
+func readEnv() (Config, error) {
+	viper.SetConfigName("config")
+	viper.AddConfigPath(".")
+	viper.SetConfigType("yml")
+	err := viper.ReadInConfig()
+	checkErr(err, "Error reading config file")
+	var config Config
+	err = viper.Unmarshal(&config)
+	checkErr(err, "Unable to decode into struct")
+	return config, err
 }
 
 func checkErr(err error, msg ...string) {
