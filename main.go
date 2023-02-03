@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type Records struct {
@@ -22,13 +25,29 @@ type TotalPages struct {
 	Records     []Records `json:"records"`
 }
 
-func main() {
-	jogadas, err := getBlazeData()
-	checkErr(err, "Error getting blaze data")
-	text := getChatGPTMessage(jogadas)
-	sendMessageToTelegramChannel(text)
+var lastHash [32]byte
 
+func main() {
+	for {
+		jogadas, err := getBlazeData()
+		if err != nil {
+			fmt.Println("Error getting blaze data:", err)
+			continue
+		}
+
+		hash := sha256.Sum256([]byte(fmt.Sprintf("%v", jogadas)))
+		if hash == lastHash {
+			fmt.Println("Payload unchanged")
+		} else {
+			lastHash = hash
+			text := getChatGPTMessage(jogadas)
+			sendMessageToTelegramChannel(text)
+		}
+
+		time.Sleep(2 * time.Second)
+	}
 }
+
 func getBlazeData() ([]string, error) {
 	var colors []string
 	data, err := http.Get("https://blaze.com/api/roulette_games/history")
