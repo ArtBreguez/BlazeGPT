@@ -5,6 +5,7 @@ RUN chmod 600 /root/.ssh/id_rsa
 RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 RUN git clone git@github.com:ArtBreguez/BlazeGPT.git 
 WORKDIR ./BlazeGPT
+RUN mkdir logs
 RUN go get github.com/spf13/viper
 RUN go get github.com/sirupsen/logrus
 RUN go build BrazinoGPT
