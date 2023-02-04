@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
@@ -49,7 +50,6 @@ func main() {
 
 		hash := sha256.Sum256([]byte(fmt.Sprintf("%v", jogadas)))
 		if hash == lastHash {
-			fmt.Println("Payload unchanged")
 		} else {
 			lastHash = hash
 			text := getChatGPTMessage(jogadas, config)
@@ -142,7 +142,7 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	}
 
 	logger := logrus.New()
-	file, err := os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	file, err = os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if err == nil {
 		logger.Out = file
 	} else {
