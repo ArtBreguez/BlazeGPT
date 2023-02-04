@@ -1,0 +1,8 @@
+version: '3'
+services:
+  blaze-gpt:
+    container_name: blaze-gpt
+    build: .
+    image: blazegpt:latest
+    volumes:
+      - ./logs:/BlazeGPT/logs

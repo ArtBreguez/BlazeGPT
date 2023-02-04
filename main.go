@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -122,6 +123,13 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	encodedMessage := url.QueryEscape(message)
 	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
 
+	file, err := os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer file.Close()
+	log.SetOutput(file)
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatalln(err)
@@ -133,7 +141,14 @@ func sendMessageToTelegramChannel(text string, config Config) {
 		log.Fatalln(err)
 	}
 
-	log.Println(string(body))
+	logger := logrus.New()
+	file, err := os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	if err == nil {
+		logger.Out = file
+	} else {
+		log.Fatalln("Failed to log to file, using default stderr")
+	}
+	logger.Info(string(body))
 }
 
 func readEnv() (Config, error) {
