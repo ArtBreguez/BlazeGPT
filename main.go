@@ -152,7 +152,6 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	logger.Info(string(body))
 }
 
-
 func readEnv() (Config, error) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
