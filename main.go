@@ -123,7 +123,8 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	encodedMessage := url.QueryEscape(message)
 	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
 
-	file, err := os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	// create the log file in the "logs" directory
+	file, err := os.OpenFile("logs/requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -142,7 +143,7 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	}
 
 	logger := logrus.New()
-	file, err = os.OpenFile("requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	file, err = os.OpenFile("logs/requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 	if err == nil {
 		logger.Out = file
 	} else {
@@ -150,6 +151,7 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	}
 	logger.Info(string(body))
 }
+
 
 func readEnv() (Config, error) {
 	viper.SetConfigName("config")
