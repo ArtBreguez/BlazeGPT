@@ -1,34 +1,33 @@
 footer {
-    position: fixed;
-    background-color: #333;
-    /* color: #fff; */
-    padding: 20px;
-    text-align: center;
-    bottom: 0;
-    width: 100%;
+  position: fixed;
+  background-color: #333;
+  padding: 20px;
+  text-align: center;
+  bottom: 0;
+  width: 100%;
   }
   
   .social-links {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   }
   
   .social-links a {
-    color: #fff;
-    margin-right: 10px;
-    text-decoration: none;
-    font-size: 16px;
+  color: #fff;
+  margin-right: 10px;
+  text-decoration: none;
+  font-size: 16px;
+  transition: all 0.2s ease-in-out;
   }
   
   .social-links a:hover {
-    color: #ddd;
+  color: #eb3100;
+  cursor: pointer;
   }
   
   .footer {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    /* outras propriedades CSS */
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   }
-  
