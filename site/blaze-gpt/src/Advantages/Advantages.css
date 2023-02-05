@@ -1,0 +1,47 @@
+.container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+.advantages-container {
+    max-width: 100%;
+    margin: 0;
+    text-align: center;
+    background-color: #f2f2f2;
+    padding: 30px;
+    }
+
+    .advantages-title {
+    font-size: 36px;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 20px;
+    }
+    
+    .advantages-list {
+    font-family: 'Open Sans', sans-serif;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    }
+    
+    .advantage {
+    width: 350px;
+    margin: 40px;
+    text-align: left;
+    }
+    
+    .advantage-icon {
+    color: green;
+    margin-right: 20px;
+    font-size: 24   px;
+    }
+    
+    .advantage-text {
+    font-size: 18px;
+    }

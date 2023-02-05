@@ -3,18 +3,13 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import ProductDisplay from './ProductDisplay';
-
+import Footer from './Footer/Footer';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
-    <ProductDisplay
-        name="Double Blaze AI Signals Room"
-        description="Transforme sua estratégia de jogo com o Blaze AI Signals Room, uma sala exclusiva no Telegram que oferece sinais precisos e inteligentes para o jogo Double da Blaze, aumentando suas chances de vitória."
-        link="https://go.hotmart.com/T79295798B"
-      />
+
   </React.StrictMode>
 );
 

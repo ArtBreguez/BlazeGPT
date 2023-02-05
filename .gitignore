@@ -1,3 +1,6 @@
 id_rsa
 .idea
 logs
+node_modules
+package-lock.json
+package.json
