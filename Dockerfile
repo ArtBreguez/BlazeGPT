@@ -5,4 +5,5 @@ RUN mkdir logs
 RUN go get github.com/spf13/viper
 RUN go get github.com/sirupsen/logrus
 RUN go build BrazinoGPT
+EXPOSE 8000
 ENTRYPOINT ["./BrazinoGPT"]
