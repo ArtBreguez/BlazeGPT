@@ -37,3 +37,11 @@
   color: #fff;
   cursor: pointer;
   }
+  
+  .product-display__image {
+  width: 280px;
+  height: 500px;
+  border-radius: 5%;
+  border: 1px solid #333;
+  margin-bottom: 20px;
+  }
