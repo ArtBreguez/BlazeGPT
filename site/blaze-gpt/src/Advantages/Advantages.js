@@ -7,7 +7,7 @@ import './Advantages.css';
 const Advantages = () => {
   return (
     
-    <div style={{ marginBottom: '70px' }} className="advantages-container">
+    <div className="advantages-container">
 
       <h2 className="advantages-title">Vantagens da Sala de Sinais Automatizados por IA</h2>
       <ul className="advantages-list">
