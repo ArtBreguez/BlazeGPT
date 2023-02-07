@@ -3,6 +3,7 @@ import Banner from './Banner/Banner';
 import ProductDisplay from './ProductDisplay/ProductDisplay';
 import Advantages from './Advantages/Advantages';
 import Footer from './Footer/Footer';
+import FAQ from './FAQ/FAQ';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         link="https://go.hotmart.com/T79295798B"
         />
         <Advantages />
+        <FAQ  />
         <Footer  />
     </div>
   );
