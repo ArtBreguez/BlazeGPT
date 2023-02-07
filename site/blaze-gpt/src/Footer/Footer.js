@@ -8,6 +8,7 @@ const Footer = () => {
         <a href="#">Telegram</a>
         <a href="#">Twitter</a>
         <a href="#">Instagram</a>
+        <a href="#">Programa de Afiliados</a>
       </div>
     </footer>
   );
