@@ -37,6 +37,7 @@ type Config struct {
 }
 
 var lastHash [32]byte
+var latestColor string
 
 func main() {
 	config, err := readEnv()
@@ -54,6 +55,10 @@ func main() {
 			lastHash = hash
 			text := getChatGPTMessage(jogadas, config)
 			sendMessageToTelegramChannel(text, config)
+			checkWinOrLoss(jogadas, config)
+			fmt.Println(strings.Title(jogadas[1]))
+			fmt.Println(text)
+			latestColor = text
 		}
 
 		time.Sleep(2 * time.Second)
@@ -72,6 +77,14 @@ func getBlazeData(endpoint string) ([]string, error) {
 		colors = append(colors, v.Color)
 	}
 	return colors, err
+}
+
+func checkWinOrLoss(jogadas []string, config Config) {
+
+	if latestColor == jogadas[1] {
+		sendMessageToTelegramChannel("Win", config)
+	} else {
+	}
 }
 
 func getChatGPTMessage(jogadas []string, config Config) string {
@@ -109,6 +122,7 @@ func getChatGPTMessage(jogadas []string, config Config) string {
 
 func sendMessageToTelegramChannel(text string, config Config) {
 	var emoji string
+	var message string
 	token := config.Channel
 	chatID := config.ChatID
 	if text == "Black" {
@@ -117,10 +131,17 @@ func sendMessageToTelegramChannel(text string, config Config) {
 		emoji = `🔴`
 	} else if text == "White" {
 		emoji = `⚪`
+	} else if text == "Win" {
+		emoji = `🏆`
 	} else {
 		return
 	}
-	message := "A próxima jogada é " + text + " " + emoji
+
+	if emoji == `🏆` {
+		message = "Win " + emoji
+	} else {
+		message = "A próxima jogada é " + text + " " + emoji
+	}
 
 	encodedMessage := url.QueryEscape(message)
 	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
