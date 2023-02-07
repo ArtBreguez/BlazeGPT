@@ -79,7 +79,7 @@ func getChatGPTMessage(jogadas []string, config Config) string {
 	url := config.ChatGPT
 	payload := map[string]interface{}{
 		"model":       "text-davinci-003",
-		"prompt":      "Baseado nessa sequencia do jogo Double da Blaze [" + result + "] qual a possivel nova cor? Reponda da maneira mais curta possivel. Uma observação é que a cor 'White' é a que tem menos probabilidade de sair, com a vermelha e preta com a mesma probabilidade. Responda em ingles. Se a probabilidade de sair a cor for menor que 90% retorne None.",
+		"prompt":      "Baseado nessa sequencia do jogo Double da Blaze [" + result + "] qual a possivel nova cor? Reponda da maneira mais curta possivel. Responda em ingles. Se a probabilidade de sair a cor for menor que 90% retorne None. Uma observação é que o jogo tem 7 numeros 'Red', 7 numeros 'Black' e 1 numero 'White'.",
 		"max_tokens":  7,
 		"temperature": 1,
 	}
