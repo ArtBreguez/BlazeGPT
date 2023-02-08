@@ -37,6 +37,7 @@ type Config struct {
 }
 
 var lastHash [32]byte
+var latestColor string
 
 func main() {
 	config, err := readEnv()
@@ -52,7 +53,10 @@ func main() {
 		if hash == lastHash {
 		} else {
 			lastHash = hash
+			checkWinOrLoss(jogadas, config)
 			text := getChatGPTMessage(jogadas, config)
+			text = strings.Replace(text, "\n", "", -1)
+			latestColor = text
 			sendMessageToTelegramChannel(text, config)
 		}
 
@@ -72,6 +76,17 @@ func getBlazeData(endpoint string) ([]string, error) {
 		colors = append(colors, v.Color)
 	}
 	return colors, err
+}
+
+func checkWinOrLoss(jogadas []string, config Config) {	
+	if latestColor == strings.Title(jogadas[0]) {
+		sendMessageToTelegramChannel("Win", config)
+	} else if latestColor != "None" && latestColor != jogadas[0] && latestColor != "" {
+		sendMessageToTelegramChannel("Loss", config)
+	} else {
+		return
+	}
+	
 }
 
 func getChatGPTMessage(jogadas []string, config Config) string {
@@ -109,6 +124,7 @@ func getChatGPTMessage(jogadas []string, config Config) string {
 
 func sendMessageToTelegramChannel(text string, config Config) {
 	var emoji string
+	var message string
 	token := config.Channel
 	chatID := config.ChatID
 	if text == "Black" {
@@ -117,15 +133,25 @@ func sendMessageToTelegramChannel(text string, config Config) {
 		emoji = `🔴`
 	} else if text == "White" {
 		emoji = `⚪`
+	} else if text == "Win" {
+		emoji = `🏆`
+	} else if text == "Loss" {
+		emoji = `👎`
 	} else {
 		return
 	}
-	message := "A próxima jogada é " + text + " " + emoji
+
+	if emoji == `🏆` {
+		message = "Win " + emoji
+	} else if emoji == `👎` {
+		message = "Loss " + emoji
+	} else {
+		message = "A próxima jogada é " + text + " " + emoji
+	}
 
 	encodedMessage := url.QueryEscape(message)
 	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
 
-	// create the log file in the "logs" directory
 	file, err := os.OpenFile("logs/requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalln(err)
