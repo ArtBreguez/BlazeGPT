@@ -56,6 +56,7 @@ func main() {
 			checkWinOrLoss(jogadas, config)
 			text := getChatGPTMessage(jogadas, config)
 			text = strings.Replace(text, "\n", "", -1)
+			text = strings.Replace(text, " ", "", -1)
 			latestColor = text
 			text = strings.Title(text)
 			sendMessageToTelegramChannel(text, config)
