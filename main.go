@@ -53,12 +53,11 @@ func main() {
 		if hash == lastHash {
 		} else {
 			lastHash = hash
-			text := getChatGPTMessage(jogadas, config)
-			sendMessageToTelegramChannel(text, config)
 			checkWinOrLoss(jogadas, config)
-			fmt.Println(strings.Title(jogadas[1]))
-			fmt.Println(text)
+			text := getChatGPTMessage(jogadas, config)
+			text = strings.Replace(text, "\n", "", -1)
 			latestColor = text
+			sendMessageToTelegramChannel(text, config)
 		}
 
 		time.Sleep(2 * time.Second)
@@ -79,12 +78,15 @@ func getBlazeData(endpoint string) ([]string, error) {
 	return colors, err
 }
 
-func checkWinOrLoss(jogadas []string, config Config) {
-
-	if latestColor == jogadas[1] {
+func checkWinOrLoss(jogadas []string, config Config) {	
+	if latestColor == strings.Title(jogadas[0]) {
 		sendMessageToTelegramChannel("Win", config)
+	} else if latestColor != "None" && latestColor != jogadas[0] && latestColor != "" {
+		sendMessageToTelegramChannel("Loss", config)
 	} else {
+		return
 	}
+	
 }
 
 func getChatGPTMessage(jogadas []string, config Config) string {
@@ -133,12 +135,16 @@ func sendMessageToTelegramChannel(text string, config Config) {
 		emoji = `⚪`
 	} else if text == "Win" {
 		emoji = `🏆`
+	} else if text == "Loss" {
+		emoji = `👎`
 	} else {
 		return
 	}
 
 	if emoji == `🏆` {
 		message = "Win " + emoji
+	} else if emoji == `👎` {
+		message = "Loss " + emoji
 	} else {
 		message = "A próxima jogada é " + text + " " + emoji
 	}
@@ -146,7 +152,6 @@ func sendMessageToTelegramChannel(text string, config Config) {
 	encodedMessage := url.QueryEscape(message)
 	url := "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chatID + "&text=" + encodedMessage
 
-	// create the log file in the "logs" directory
 	file, err := os.OpenFile("logs/requests.log", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalln(err)
