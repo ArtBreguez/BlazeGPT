@@ -4,5 +4,6 @@ services:
     container_name: blaze-gpt
     build: .
     image: blazegpt:latest
+    restart: always
     volumes:
       - ./logs:/go/BlazeGPT/logs/
