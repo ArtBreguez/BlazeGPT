@@ -57,9 +57,9 @@ func main() {
 			text := getChatGPTMessage(jogadas, config)
 			text = strings.Replace(text, "\n", "", -1)
 			latestColor = text
+			text = strings.Title(text)
 			sendMessageToTelegramChannel(text, config)
 		}
-
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -78,7 +78,7 @@ func getBlazeData(endpoint string) ([]string, error) {
 	return colors, err
 }
 
-func checkWinOrLoss(jogadas []string, config Config) {	
+func checkWinOrLoss(jogadas []string, config Config) {
 	if latestColor == strings.Title(jogadas[0]) {
 		sendMessageToTelegramChannel("Win", config)
 	} else if latestColor != "None" && latestColor != jogadas[0] && latestColor != "" {
@@ -86,7 +86,7 @@ func checkWinOrLoss(jogadas []string, config Config) {
 	} else {
 		return
 	}
-	
+
 }
 
 func getChatGPTMessage(jogadas []string, config Config) string {
@@ -106,7 +106,11 @@ func getChatGPTMessage(jogadas []string, config Config) string {
 	req.Header.Add("Authorization", config.Token)
 
 	client := &http.Client{}
-	res, _ := client.Do(req)
+	res, err := client.Do(req)
+
+	if err != nil || res == nil {
+		return ""
+	}
 
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
