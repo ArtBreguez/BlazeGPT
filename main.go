@@ -34,6 +34,7 @@ type Config struct {
 	Blaze   string
 	ChatGPT string
 	Token   string
+	Model   string
 }
 
 var lastHash [32]byte
@@ -55,14 +56,36 @@ func main() {
 			lastHash = hash
 			checkWinOrLoss(jogadas, config)
 			text := getChatGPTMessage(jogadas, config)
+			text = findMostFrequentColor(text)
 			text = strings.Replace(text, "\n", "", -1)
 			text = strings.Replace(text, " ", "", -1)
 			latestColor = text
 			text = strings.Title(text)
 			sendMessageToTelegramChannel(text, config)
+			fmt.Println(text)
 		}
 		time.Sleep(2 * time.Second)
 	}
+}
+
+func findMostFrequentColor(sentence string) string {
+	colors := []string{"red", "black", "white"}
+
+	counts := make(map[string]int)
+	for _, color := range colors {
+		counts[color] = strings.Count(sentence, color)
+	}
+
+	var maxColor string
+	var maxCount int
+	for color, count := range counts {
+		if count > maxCount {
+			maxColor = color
+			maxCount = count
+		}
+	}
+
+	return maxColor
 }
 
 func getBlazeData(endpoint string) ([]string, error) {
@@ -73,7 +96,10 @@ func getBlazeData(endpoint string) ([]string, error) {
 	var result TotalPages
 	err = json.NewDecoder(data.Body).Decode(&result)
 	checkErr(err, "Error decoding blaze.com data")
-	for _, v := range result.Records {
+	for i, v := range result.Records {
+		if i == 9 {
+			break
+		}
 		colors = append(colors, v.Color)
 	}
 	return colors, err
@@ -94,8 +120,8 @@ func getChatGPTMessage(jogadas []string, config Config) string {
 	result := strings.Join(jogadas, ", ")
 	url := config.ChatGPT
 	payload := map[string]interface{}{
-		"model":       "text-davinci-003",
-		"prompt":      "Baseado nessa sequencia do jogo Double da Blaze [" + result + "] qual a possivel nova cor? Reponda da maneira mais curta possivel. Responda em ingles. Se a probabilidade de sair a cor for menor que 90% retorne None. Uma observação é que o jogo tem 7 numeros 'Red', 7 numeros 'Black' e 1 numero 'White'.",
+		"model":       config.Model,
+		"prompt":      result,
 		"max_tokens":  7,
 		"temperature": 1,
 	}
