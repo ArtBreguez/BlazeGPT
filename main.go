@@ -59,8 +59,8 @@ func main() {
 			text = findMostFrequentColor(text)
 			text = strings.Replace(text, "\n", "", -1)
 			text = strings.Replace(text, " ", "", -1)
-			latestColor = text
 			text = strings.Title(text)
+			latestColor = text
 			sendMessageToTelegramChannel(text, config)
 			fmt.Println(text)
 		}
@@ -106,6 +106,7 @@ func getBlazeData(endpoint string) ([]string, error) {
 }
 
 func checkWinOrLoss(jogadas []string, config Config) {
+	fmt.Println(jogadas[0], latestColor)
 	if latestColor == strings.Title(jogadas[0]) {
 		sendMessageToTelegramChannel("Win", config)
 	} else if latestColor != "None" && latestColor != jogadas[0] && latestColor != "" {
