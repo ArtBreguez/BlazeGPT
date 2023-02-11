@@ -29,12 +29,14 @@ type TotalPages struct {
 }
 
 type Config struct {
-	Channel string
-	ChatID  string
-	Blaze   string
-	ChatGPT string
-	Token   string
-	Model   string
+	Channel     string
+	ChatID      string
+	Blaze       string
+	ChatGPT     string
+	Token       string
+	Model       string
+	MaxTokens   int
+	Temperature float64
 }
 
 var lastHash [32]byte
@@ -56,36 +58,27 @@ func main() {
 			lastHash = hash
 			checkWinOrLoss(jogadas, config)
 			text := getChatGPTMessage(jogadas, config)
-			text = findMostFrequentColor(text)
+			fmt.Println(text)
+			text = findFirstColor(text)
 			text = strings.Replace(text, "\n", "", -1)
 			text = strings.Replace(text, " ", "", -1)
 			text = strings.Title(text)
 			latestColor = text
 			sendMessageToTelegramChannel(text, config)
-			fmt.Println(text)
 		}
 		time.Sleep(2 * time.Second)
 	}
 }
 
-func findMostFrequentColor(sentence string) string {
-	colors := []string{"red", "black", "white"}
+func findFirstColor(sentence string) string {
+	colors := []string{"red", "black", "white", "Red", "Black", "White"}
 
-	counts := make(map[string]int)
 	for _, color := range colors {
-		counts[color] = strings.Count(sentence, color)
-	}
-
-	var maxColor string
-	var maxCount int
-	for color, count := range counts {
-		if count > maxCount {
-			maxColor = color
-			maxCount = count
+		if strings.Contains(sentence, color) {
+			return color
 		}
 	}
-
-	return maxColor
+	return ""
 }
 
 func getBlazeData(endpoint string) ([]string, error) {
@@ -97,7 +90,7 @@ func getBlazeData(endpoint string) ([]string, error) {
 	err = json.NewDecoder(data.Body).Decode(&result)
 	checkErr(err, "Error decoding blaze.com data")
 	for i, v := range result.Records {
-		if i == 9 {
+		if i == 15 {
 			break
 		}
 		colors = append(colors, v.Color)
@@ -106,7 +99,6 @@ func getBlazeData(endpoint string) ([]string, error) {
 }
 
 func checkWinOrLoss(jogadas []string, config Config) {
-	fmt.Println(jogadas[0], latestColor)
 	if latestColor == strings.Title(jogadas[0]) {
 		sendMessageToTelegramChannel("Win", config)
 	} else if latestColor != "None" && latestColor != jogadas[0] && latestColor != "" {
@@ -118,13 +110,18 @@ func checkWinOrLoss(jogadas []string, config Config) {
 }
 
 func getChatGPTMessage(jogadas []string, config Config) string {
+	for i, j := 0, len(jogadas)-1; i < j; i, j = i+1, j-1 {
+		jogadas[i], jogadas[j] = jogadas[j], jogadas[i]
+	}
 	result := strings.Join(jogadas, ", ")
+	result = fmt.Sprintf("[%s]", result)
+	fmt.Println(result)
 	url := config.ChatGPT
 	payload := map[string]interface{}{
 		"model":       config.Model,
-		"prompt":      result,
-		"max_tokens":  7,
-		"temperature": 1,
+		"prompt":      "What is the next color of the sequence?" + result,
+		"max_tokens":  config.MaxTokens,
+		"temperature": config.Temperature,
 	}
 
 	jsonValue, _ := json.Marshal(payload)
