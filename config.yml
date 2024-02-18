@@ -1,8 +1,8 @@
-Channel: "5891096865:AAFHsDFzfFfgFDBDIUe5drg68OKsDOu9HUw"
-ChatID: "-1001809111657"
+Channel: ""
+ChatID: ""
 Blaze: "https://blaze.com/api/roulette_games/history"
 ChatGPT: "https://api.openai.com/v1/completions"
-Token: "Bearer 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"
-Model: "ada:ft-personal:double-ada-v4-2023-02-11-22-28-18"
+Token: ""
+Model: ""
 MaxTokens: 1
 Temperature: 1
